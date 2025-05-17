@@ -7,10 +7,17 @@ const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState([]);
 
   useEffect(() => {
-    setLocalStorage(); // populates localStorage if empty
+    setLocalStorage(); // populate localStorage if empty
     const { employees } = getLocalStorage();
     setUserData(employees);
   }, []);
+
+  // Sync to localStorage whenever userData changes
+  useEffect(() => {
+    if (userData.length > 0) {
+      localStorage.setItem('employees', JSON.stringify(userData));
+    }
+  }, [userData]);
 
   return (
     <AuthContext.Provider value={[userData, setUserData]}>
