@@ -10,9 +10,7 @@ Admins can create and assign tasks to employees, while employees can log in to v
 ### 🚀 Live Demo
 
 Try the app live here:  
-[https://emsnew1.vercel.app/](https://emsnew1.vercel.app/)
-
-
+https://emsnew1.vercel.app/
 
 ---
 
