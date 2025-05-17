@@ -1,32 +1,79 @@
-import React,{useContext} from 'react'
-import { AuthContext } from '../../context/AuthProvider'
+import React, { useContext } from 'react';
+import { AuthContext } from '../../context/AuthProvider';
 
 const AllTask = () => {
-  const [userData,setUserData]=useContext(AuthContext);
+  const [userData, setUserData] = useContext(AuthContext);
+
+  const markAsCompleted = (userId, taskIndex) => {
+    const updatedUsers = userData.map(user => {
+      if (user.id === userId) {
+        const updatedTasks = [...user.tasks];
+        const task = { ...updatedTasks[taskIndex] };
+
+        if (!task.completed) {
+          // Reset all statuses
+          task.completed = true;
+          task.active = false;
+          task.newTask = false;
+          task.failed = false;
+
+          updatedTasks[taskIndex] = task;
+
+          // Recalculate counts
+          const updatedCounts = { newTask: 0, active: 0, completed: 0, failed: 0 };
+          updatedTasks.forEach(t => {
+            if (t.newTask) updatedCounts.newTask++;
+            if (t.active) updatedCounts.active++;
+            if (t.completed) updatedCounts.completed++;
+            if (t.failed) updatedCounts.failed++;
+          });
+
+          return { ...user, tasks: updatedTasks, taskCounts: updatedCounts };
+        }
+      }
+      return user;
+    });
+
+    setUserData(updatedUsers);
+  };
+
   return (
-    <div className='bg-[#1c1c1c] p-5 rounded mt-5 h-48'>
+    <div className='bg-[#1c1c1c] p-5 rounded mt-5'>
+      <h2 className='text-white mb-4 text-xl font-semibold'>All Tasks</h2>
+      {userData.map(user => (
+        <div key={user.id} className="mb-6">
+          <h3 className='text-white mb-2 font-bold'>{user.firstName}'s Tasks:</h3>
+          {user.tasks.map((task, index) => (
+            <div
+              key={index}
+              className={`p-3 rounded mb-2 ${
+                task.completed ? 'bg-green-600' : 'bg-gray-700'
+              } flex justify-between items-center`}
+            >
+              <div>
+                <h4 className='text-white font-semibold'>{task.title}</h4>
+                <p className='text-gray-300'>{task.description}</p>
+                <p className='text-gray-400 text-sm'>Category: {task.category}</p>
+              </div>
 
-      <div className='bg-red-500 mb-2 py-2 px-4 flex justify-between items-center text-white font-semibold rounded'>
-        <h2 className='text-lg font-medium w-1/5 text-left'>Employee Name</h2>
-        <h3 className='text-lg font-medium w-1/5 text-center'>New Task</h3>
-        <h5 className='text-lg font-medium w-1/5 text-center'>Active Task</h5>
-        <h5 className='text-lg font-medium w-1/5 text-center'>Completed</h5>
-        <h5 className='text-lg font-medium w-1/5 text-center'>Failed</h5>
-      </div>
+              {!task.completed && (
+                <button
+                  onClick={() => markAsCompleted(user.id, index)}
+                  className='bg-emerald-500 hover:bg-emerald-700 text-white px-3 py-1 rounded'
+                >
+                  Mark as Completed
+                </button>
+              )}
 
-      <div className='h-[80%] overflow-auto space-y-2 pr-1'>
-        {userData.map(function(elem,idx){
-        return <div key={idx} className='bg-emerald-600 py-2 px-4 flex justify-between items-center text-white rounded hover:bg-emerald-700 transition'>
-        <h2 className='w-1/5 text-lg font-medium text-left '>{elem.firstName}</h2>
-        <h3 className='w-1/5 text-lg font-medium text-center text-blue-200'>{elem.taskCounts.newTask}</h3>
-        <h5 className='w-1/5 text-lg font-medium text-center text-yellow-300'>{elem.taskCounts.active}</h5>
-        <h5 className='w-1/5 text-lg font-medium text-center text-green-200'>{elem.taskCounts.completed}</h5>
-        <h5 className='w-1/5 text-lg font-medium text-center text-red-300'>{elem.taskCounts.failed}</h5>
-      </div>
-      })}
-      </div>
+              {task.completed && (
+                <span className='text-green-300 font-semibold'>Completed</span>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
-  )
-}
+  );
+};
 
 export default AllTask;
